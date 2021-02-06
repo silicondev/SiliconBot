@@ -18,20 +18,29 @@ namespace SiliconBot
 
         static async Task Main(string[] args)
         {
-            var client = new DiscordClient(new DiscordConfiguration
+            try
             {
-                Token = Resources.BOT_TOKEN,
-                TokenType = TokenType.Bot
-            });
+                var client = new DiscordClient(new DiscordConfiguration
+                {
+                    Token = Resources.BOT_TOKEN,
+                    TokenType = TokenType.Bot
+                });
 
-            foreach (var ev in Events)
+                foreach (var evnt in Events)
+                {
+                    client.AddEvent(evnt);
+                    Logger.Log($"{evnt.EventName} event added.");
+                }
+
+                Logger.Log("Bot is running.");
+                await client.ConnectAsync();
+                await Task.Delay(-1);
+            } 
+            catch (Exception e)
             {
-                ev.AddEvent(ref client);
-                Console.WriteLine($"{ev.EventName} event added.");
+                Logger.Log($"Error when starting bot: {e.Message}", LogType.ERROR);
+                Logger.Log(e.StackTrace, LogType.ERROR);
             }
-
-            await client.ConnectAsync();
-            await Task.Delay(-1);
         }
     }
 }

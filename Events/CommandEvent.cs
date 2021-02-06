@@ -21,10 +21,7 @@ namespace SiliconBot.Events
             new MeowCommand()
         };
 
-        public override void AddEvent(ref DiscordClient client)
-        {
-            client.MessageCreated += OnEvent;
-        }
+        public override void AddEvent(ref DiscordClient client) => client.MessageCreated += OnEvent;
 
         public override async Task OnEvent(EventArgs e)
         {
@@ -33,7 +30,7 @@ namespace SiliconBot.Events
             var msg = ev.Message;
             var text = msg.Content;
 
-            Console.WriteLine($"Message event received: {text}");
+            Logger.Log($"[MSG] {msg.Author.Username}: {text}");
 
             if (text.StartsWith(c))
             {
@@ -41,6 +38,8 @@ namespace SiliconBot.Events
                 var items = line.Split(" ");
                 var name = items[0];
                 var args = items.Skip(1).ToArray();
+
+                Logger.Log($"Command received: {name} with args {args.Combine()}");
 
                 foreach (var cmd in _commands)
                 {
