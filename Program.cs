@@ -1,4 +1,5 @@
 ﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using SiliconBot.Events;
 using SiliconBot.Properties;
 using System;
@@ -11,6 +12,9 @@ namespace SiliconBot
 {
     class Program
     {
+        public static Random RNG = new Random();
+        public static List<ActiveUser> ActiveUsers = new List<ActiveUser>();
+        public static DiscordClient Client;
         static List<BotEvent> Events = new List<BotEvent>()
         {
             new CommandEvent()
@@ -20,7 +24,7 @@ namespace SiliconBot
         {
             try
             {
-                var client = new DiscordClient(new DiscordConfiguration
+                Client = new DiscordClient(new DiscordConfiguration
                 {
                     Token = Resources.BOT_TOKEN,
                     TokenType = TokenType.Bot
@@ -28,12 +32,12 @@ namespace SiliconBot
 
                 foreach (var evnt in Events)
                 {
-                    client.AddEvent(evnt);
+                    Client.AddEvent(evnt);
                     Logger.Log($"{evnt.EventName} event added.");
                 }
 
                 Logger.Log("Bot is running.");
-                await client.ConnectAsync();
+                await Client.ConnectAsync();
                 await Task.Delay(-1);
             } 
             catch (Exception e)

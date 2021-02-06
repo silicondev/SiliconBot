@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using static SiliconBot.Program;
 
 namespace SiliconBot.Events
 {
@@ -18,7 +19,9 @@ namespace SiliconBot.Events
         {
             new PingCommand(),
             new ShutdownCommand(),
-            new MeowCommand()
+            new MeowCommand(),
+            new ActiveUsersCommand(),
+            new ComplimentCommand()
         };
 
         public override void AddEvent(ref DiscordClient client) => client.MessageCreated += OnEvent;
@@ -29,6 +32,17 @@ namespace SiliconBot.Events
 
             var msg = ev.Message;
             var text = msg.Content;
+            var author = msg.Author;
+
+            if (ActiveUsers.HasUser(author))
+            {
+                var usr = ActiveUsers.Find(x => x.User == author);
+                usr.Channel = msg.Channel;
+                usr.LastSeen = DateTime.Now;
+            } else
+            {
+                ActiveUsers.Add(new ActiveUser(author, DateTime.Now, msg.Channel));
+            }
 
             Logger.Log($"[MSG] {msg.Author.Username}: {text}");
 
@@ -39,12 +53,14 @@ namespace SiliconBot.Events
                 var name = items[0];
                 var args = items.Skip(1).ToArray();
 
-                Logger.Log($"Command received: {name} with args {args.Combine()}");
-
                 foreach (var cmd in _commands)
                 {
                     if (cmd.Name == name)
                     {
+                        string str = $"Command received: {name}";
+                        str += args.Any() ? $" with args {args.Combine()}" : "";
+                        Logger.Log(str);
+
                         await cmd.Code(msg, args);
                         break;
                     }
