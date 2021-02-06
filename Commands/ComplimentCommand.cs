@@ -39,7 +39,7 @@ namespace SiliconBot.Commands
                 _compliments = new List<string>(compFile);
             }
 
-            var usr = ActiveUsers.Find(x => x.User == user);
+            var usr = KnownUsers.Find(x => x.User == user);
             var channel = usr.Channel;
             await channel.SendMessageAsync($"{usr.User.Mention} - {_compliments[RNG.Next(_compliments.Count)]}");
         }

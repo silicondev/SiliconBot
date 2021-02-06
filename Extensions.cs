@@ -50,5 +50,13 @@ namespace SiliconBot
             }
             return false;
         }
+
+        public static int Get(this Dictionary<string, int> dict, string key)
+        {
+            if (dict.ContainsKey(key))
+                return dict[key];
+            else
+                return 0;
+        }
     }
 }

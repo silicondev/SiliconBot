@@ -34,14 +34,17 @@ namespace SiliconBot.Events
             var text = msg.Content;
             var author = msg.Author;
 
-            if (ActiveUsers.HasUser(author))
+            if (author.IsBot)
+                return;
+
+            if (KnownUsers.HasUser(author))
             {
-                var usr = ActiveUsers.Find(x => x.User == author);
+                var usr = KnownUsers.Find(x => x.User == author);
                 usr.Channel = msg.Channel;
                 usr.LastSeen = DateTime.Now;
             } else
             {
-                ActiveUsers.Add(new ActiveUser(author, DateTime.Now, msg.Channel));
+                KnownUsers.Add(new ActiveUser(author, DateTime.Now, msg.Channel));
             }
 
             Logger.Log($"[MSG] {msg.Author.Username}: {text}");
