@@ -17,7 +17,8 @@ namespace SiliconBot.Events
         private List<Command> _commands = new List<Command>()
         {
             new PingCommand(),
-            new ShutdownCommand()
+            new ShutdownCommand(),
+            new MeowCommand()
         };
 
         public override void AddEvent(ref DiscordClient client)
