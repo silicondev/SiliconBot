@@ -37,6 +37,11 @@ namespace SiliconBot.Commands
                 }
                 
                 _compliments = new List<string>(compFile);
+
+                foreach (var line in _compliments)
+                {
+                    if (string.IsNullOrEmpty(line)) _compliments.Remove(line);
+                }
             }
 
             var usr = KnownUsers.Find(x => x.User == user);
