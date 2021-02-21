@@ -4,12 +4,12 @@ on: [push]
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/compiled'
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v1
       - name: Push to server
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@compiled
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
