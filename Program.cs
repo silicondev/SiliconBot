@@ -33,7 +33,7 @@ namespace SiliconBot
             {
                 Client = new DiscordClient(new DiscordConfiguration
                 {
-                    Token = Environment.GetEnvironmentVariable("BOT_TOKEN"),
+                    Token = Resources.BOT_TOKEN,
                     TokenType = TokenType.Bot
                 });
 
