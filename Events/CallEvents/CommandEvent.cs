@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using static SiliconBot.Program;
 
-namespace SiliconBot.Events
+namespace SiliconBot.Events.TimedEvents
 {
     public class CommandEvent : BotEvent
     {
@@ -47,7 +47,7 @@ namespace SiliconBot.Events
                 KnownUsers.Add(new ActiveUser(author, DateTime.Now, msg.Channel));
             }
 
-            Logger.Log($"[MSG] {msg.Author.Username}: {text}");
+            Logger.Log($"[MSG] {msg.Author.Username}: {text}", "chat", LogOrigin.MSG);
 
             if (text.StartsWith(c))
             {
@@ -62,7 +62,7 @@ namespace SiliconBot.Events
                     {
                         string str = $"Command received: {name}";
                         str += args.Any() ? $" with args {args.Combine()}" : "";
-                        Logger.Log(str);
+                        Logger.Log(str, "command", LogOrigin.CMD);
 
                         await cmd.Code(msg, args);
                         break;

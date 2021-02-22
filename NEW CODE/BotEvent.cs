@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiliconBot
+namespace SigmaBotCore
 {
     public abstract class BotEvent
     {
