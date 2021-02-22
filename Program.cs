@@ -60,7 +60,7 @@ namespace SiliconBot
 
                 await Client.UpdateStatusAsync(new DiscordGame($"{BotName} v{Version}"), UserStatus.Online);
 
-                Logger.Log("Bot is running.", "bootup");
+                Logger.Log($"Bot is running with version {Version}.", "bootup");
 
                 _startTime = DateTime.Now;
             }
