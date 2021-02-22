@@ -31,8 +31,7 @@ namespace SiliconBot.Commands
                 }
                 catch (Exception e)
                 {
-                    Logger.Log($"Error when loading compliments file: {e.Message}", LogType.ERROR);
-                    Logger.Log(e.StackTrace, LogType.ERROR);
+                    Logger.LogError(e, "compliments", LogOrigin.CMD);
                     return;
                 }
                 

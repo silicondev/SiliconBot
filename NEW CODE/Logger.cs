@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace SiliconBot
+namespace SigmaBotCore
 {
     public static class Logger
     {
@@ -37,12 +37,6 @@ namespace SiliconBot
             Console.WriteLine(str);
         }
 
-        public static void LogError(Exception e, string channel, LogOrigin origin = LogOrigin.SYS)
-        {
-            Log(e.Message, channel, origin, LogType.ERR);
-            Log(e.StackTrace, channel, origin, LogType.ERR);
-        }
-
         public static void PrintLog()
         {
             if (!Directory.Exists("logs")) Directory.CreateDirectory("logs");
@@ -66,7 +60,6 @@ namespace SiliconBot
     {
         MSG,
         CMD,
-        SYS,
-        USR
+        SYS
     }
 }

@@ -1,8 +1,10 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using SiliconBot.Events;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using static SiliconBot.Program;
 
 namespace SiliconBot
@@ -51,12 +53,8 @@ namespace SiliconBot
             return false;
         }
 
-        public static int Get(this Dictionary<string, int> dict, string key)
-        {
-            if (dict.ContainsKey(key))
-                return dict[key];
-            else
-                return 0;
-        }
+        public static double Get(this Dictionary<string, double> dict, string key) => dict.ContainsKey(key) ? dict[key] : 0;
+
+        public static TimeSpan Difference(this DateTime current, DateTime other) => other > current ? other - current : current - other;
     }
 }

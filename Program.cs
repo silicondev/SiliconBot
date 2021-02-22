@@ -1,7 +1,8 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using SiliconBot.Commands;
 using SiliconBot.Events;
+using SiliconBot.Events.TimedEvents;
+using SiliconBot.Commands;
 using SiliconBot.Properties;
 using System;
 using System.Collections.Generic;
@@ -15,106 +16,75 @@ namespace SiliconBot
     class Program
     {
         public static string BotName = "SiliconBot";
+        public static string Version = "0.1-RELEASE";
         public static Random RNG = new Random();
+        private static DateTime _startTime;
+
         public static List<ActiveUser> ActiveUsers = new List<ActiveUser>();
         public static List<ActiveUser> KnownUsers = new List<ActiveUser>();
-        private static List<ActiveUser> _userCache = new List<ActiveUser>();
+
         public static DiscordClient Client;
-        private static List<BotEvent> _events = new List<BotEvent>()
+
+        private static List<BotEvent> _botEvents = new List<BotEvent>()
         {
             new CommandEvent()
         };
-        private static int _secondsAlive = 0;
-        private static Dictionary<string, int> LastRun = new Dictionary<string, int>();
+        private static List<TimeEvent> _timeEvents = new List<TimeEvent>()
+        {
+            new CheckActiveEvent(),
+            new GiveComplimentEvent()
+        };
+
+        private static double _secondsAlive = 0;
 
         static async Task Main(string[] args)
         {
             try
             {
+                Logger.Start();
+                AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnExit);
+
                 Client = new DiscordClient(new DiscordConfiguration
                 {
                     Token = Resources.BOT_TOKEN,
                     TokenType = TokenType.Bot
                 });
 
-                foreach (var evnt in _events)
+                foreach (var evnt in _botEvents)
                 {
                     Client.AddEvent(evnt);
-                    Logger.Log($"{evnt.EventName} event added.");
+                    Logger.Log($"{evnt.EventName} event added.", "bootup");
                 }
 
-                
                 await Client.ConnectAsync();
 
-                Logger.Log("Bot is running.");
-                //await Task.Delay(-1);
+                await Client.UpdateStatusAsync(new DiscordGame($"{BotName} v{Version}"), UserStatus.Online);
 
-                
-                while (true)
-                {
-                    if (_secondsAlive >= LastRun.Get("CheckActive") + 5)
-                    {
-                        List<ActiveUser> usrs = new List<ActiveUser>();
-                        List<ActiveUser> added = new List<ActiveUser>();
-                        List<ActiveUser> removed = new List<ActiveUser>();
+                Logger.Log("Bot is running.", "bootup");
 
-                        foreach (var usr in KnownUsers)
-                        {
-                            if (usr.LastSeen.AddMinutes(5) > DateTime.Now)
-                            {
-                                usrs.Add(usr);
-                                if (!_userCache.Contains(usr))
-                                {
-                                    added.Add(usr);
-                                }
-                            } else
-                            {
-                                if (_userCache.Contains(usr))
-                                    removed.Add(usr);
-                            }
-                        }
-
-                        ActiveUsers = new List<ActiveUser>(usrs);
-                        _userCache = new List<ActiveUser>(usrs);
-
-                        foreach (var usr in added)
-                        {
-                            Logger.Log($"[USER] + {usr.User.Username}");
-                        }
-                        foreach (var usr in removed)
-                        {
-                            Logger.Log($"[USER] - {usr.User.Username}");
-                        }
-
-                        LastRun["CheckActive"] = _secondsAlive;
-                    }
-
-                    if (_secondsAlive >= LastRun.Get("GiveCompliment") + 300)
-                    {
-                        Logger.Log("Attempting to give compliment...");
-                        if (ActiveUsers.Any())
-                        {
-                            var usr = ActiveUsers[RNG.Next(ActiveUsers.Count)];
-                            Logger.Log($"Active user found: {usr.User.Username}");
-                            var comp = new ComplimentCommand();
-                            await comp.Compliment(usr.User);
-                        } else 
-                        {
-                            Logger.Log("No active users.");
-                        }
-                        LastRun["GiveCompliment"] = _secondsAlive;
-                    }
-
-
-                    await Task.Delay(1000);
-                    _secondsAlive++;
-                }
-            } 
+                _startTime = DateTime.Now;
+            }
             catch (Exception e)
             {
-                Logger.Log($"Error when starting bot: {e.Message}", LogType.ERROR);
-                Logger.Log(e.StackTrace, LogType.ERROR);
+                Logger.LogError(e, "bootup");
             }
+
+            while (true)
+            {
+                foreach (var evnt in _timeEvents)
+                {
+                    await evnt.OnEvent(_secondsAlive);
+                }
+
+                _secondsAlive = _startTime.Difference(DateTime.Now).TotalSeconds;
+            }
+        }
+
+        private static void OnExit(object sender, EventArgs e)
+        {
+            _ = Client.UpdateStatusAsync(user_status: UserStatus.Offline);
+            Logger.Log("Received Shutdown command.", "shutdown");
+            Logger.Stop();
         }
     }
 }

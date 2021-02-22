@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NEW CODE\**" />
+    <EmbeddedResource Remove="NEW CODE\**" />
+    <None Remove="NEW CODE\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Properties\Resources.resx~RF704e6735.TMP" />
   </ItemGroup>
 
