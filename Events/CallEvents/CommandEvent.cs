@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using static SiliconBot.Program;
+using DSharpPlus.Entities;
 
 namespace SiliconBot.Events.TimedEvents
 {
@@ -33,6 +34,9 @@ namespace SiliconBot.Events.TimedEvents
             var msg = ev.Message;
             var text = msg.Content;
             var author = msg.Author;
+            var channel = msg.Channel;
+
+            Logger.Log($"{author.Username}: {text}", channel.Name, LogOrigin.MSG);
 
             if (author.IsBot)
                 return;
@@ -43,30 +47,31 @@ namespace SiliconBot.Events.TimedEvents
                 usr.Channel = msg.Channel;
                 usr.LastSeen = DateTime.Now;
             } else
-            {
-                KnownUsers.Add(new ActiveUser(author, DateTime.Now, msg.Channel));
-            }
-
-            Logger.Log($"[MSG] {msg.Author.Username}: {text}", "chat", LogOrigin.MSG);
+                KnownUsers.Add(new ActiveUser(author, DateTime.Now, channel));
 
             if (text.StartsWith(c))
             {
                 string line = text.ToLower().Substring(1);
-                var items = line.Split(" ");
-                var name = items[0];
-                var args = items.Skip(1).ToArray();
+                await ParseCommand(line, new CommandContext(Context.DMSG, msg));
+            }
+        }
 
-                foreach (var cmd in _commands)
+        public async Task ParseCommand(string text, CommandContext msg)
+        {
+            var items = text.Split(" ");
+            var name = items[0];
+            var args = items.Skip(1).ToArray();
+
+            foreach (var cmd in _commands)
+            {
+                if (cmd.Name == name)
                 {
-                    if (cmd.Name == name)
-                    {
-                        string str = $"Command received: {name}";
-                        str += args.Any() ? $" with args {args.Combine()}" : "";
-                        Logger.Log(str, "command", LogOrigin.CMD);
+                    string str = $"Command received: {name}";
+                    str += args.Any() ? $" with args {args.Combine()}" : "";
+                    Logger.Log(str, "command", LogOrigin.CMD);
 
-                        await cmd.Code(msg, args);
-                        break;
-                    }
+                    await cmd.Code(msg, args);
+                    break;
                 }
             }
         }

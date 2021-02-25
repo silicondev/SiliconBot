@@ -15,9 +15,9 @@ namespace SiliconBot.Commands
 
         public override string Name => "getcompliment";
 
-        public override async Task Code(DiscordMessage msg, string[] args)
+        public override async Task Code(CommandContext msg, string[] args)
         {
-            await Compliment(msg.Author);
+            await Compliment(msg.Msg.Author);
         }
 
         public async Task Compliment(DiscordUser user)

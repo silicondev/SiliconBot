@@ -9,6 +9,6 @@ namespace SiliconBot
     public abstract class Command
     {
         public abstract string Name { get; }
-        public abstract Task Code(DiscordMessage msg, string[] args);
+        public abstract Task Code(CommandContext msg, string[] args);
     }
 }
