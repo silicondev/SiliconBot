@@ -16,7 +16,7 @@ namespace SiliconBot
     class Program
     {
         public static string BotName = "SiliconBot";
-        public static string Version = "0.1-RELEASE";
+        public static string Version = "0.2-RELEASE";
         public static Random RNG = new Random();
         private static DateTime _startTime;
 
@@ -58,7 +58,11 @@ namespace SiliconBot
 
                 await Client.ConnectAsync();
 
-                await Client.UpdateStatusAsync(new DiscordGame($"{BotName} v{Version}"), UserStatus.Online);
+                await Client.InitializeAsync();
+
+                await Client.UpdateStatusAsync(new DiscordGame($"{BotName} v{Version}"), UserStatus.Online); // This doesn't work
+
+                var status = Client.CurrentUser.Presence.Game.Name;
 
                 Logger.Log($"Bot is running with version {Version}.", "bootup");
 
@@ -69,11 +73,24 @@ namespace SiliconBot
                 Logger.LogError(e, "bootup");
             }
 
+            var consoleIn = Task.Run(() => Console.ReadLine());
+            var commandRun = new CommandEvent();
             while (true)
             {
                 foreach (var evnt in _timeEvents)
                 {
                     await evnt.OnEvent(_secondsAlive);
+                }
+
+                if (consoleIn.IsCompleted)
+                {
+                    var result = consoleIn.Result;
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        await commandRun.ParseCommand(result, new CommandContext(Context.CONS));
+                        consoleIn = null;
+                        consoleIn = Task.Run(() => Console.ReadLine());
+                    }
                 }
 
                 _secondsAlive = _startTime.Difference(DateTime.Now).TotalSeconds;
@@ -83,6 +100,7 @@ namespace SiliconBot
         private static void OnExit(object sender, EventArgs e)
         {
             _ = Client.UpdateStatusAsync(user_status: UserStatus.Offline);
+            _ = Client.DisconnectAsync();
             Logger.Log("Received Shutdown command.", "shutdown");
             Logger.Stop();
         }

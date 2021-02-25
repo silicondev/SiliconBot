@@ -10,7 +10,7 @@ namespace SiliconBot.Commands
     {
         public override string Name => "ping";
 
-        public override async Task Code(DiscordMessage msg, string[] args) 
+        public override async Task Code(CommandContext msg, string[] args) 
         { 
             await msg.RespondAsync("Pong!");
             if (args.Length > 0)
